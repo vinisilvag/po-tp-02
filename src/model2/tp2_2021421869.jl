@@ -1,6 +1,6 @@
 mutable struct Graph
   n::Int
-  g::Array{Array{Int}}
+  g::Matrix{Int}
 end
 
 function read_input(file)
@@ -12,33 +12,24 @@ function read_input(file)
 
     if q[1] == "n"
       n = parse(Int64, q[2])
-      g = [[] for _ = 1:n]
+      g = zeros(Int, (n, n))
     elseif q[1] == "e"
       v = parse(Int64, q[2])
       u = parse(Int64, q[3])
-      push!(g[v], u)
-      push!(g[u], v)
+      g[u, v] = 1
+      g[v, u] = 1
     end
   end
 
   return Graph(n, g)
 end
 
-function solve(data)
-  label = [i for i in 1:data.n]
-  adj = zeros(Int, data.n, data.n)
+function greedy(data)
   degree = zeros(Int, data.n)
 
   for i in 1:data.n
-    for j in data.g[i]
-      adj[i, j] = 1
-      adj[j, i] = 1
-    end
-  end
-
-  for i in 1:data.n
     for j in 1:i-1
-      if adj[i, j] == 1
+      if data.g[i, j] == 1
         degree[i] += 1
         degree[j] += 1
       end
@@ -60,7 +51,7 @@ function solve(data)
 
     # compartilha aresta com algum vertice na solucao?
     for j in maximum_independet_set
-      if adj[vertices[i][2], j] == 1
+      if data.g[vertices[i][2], j] == 1
         can_insert = false
       end
     end
@@ -79,7 +70,7 @@ function certificate(solution)
   sort!(solution)
 
   for i in solution
-    print("$(i) ")
+    print("$(i)\t")
   end
 
   println()
@@ -89,7 +80,7 @@ function main()
   file = open(ARGS[1], "r")
   data = read_input(file)
 
-  solution = solve(data)
+  solution = greedy(data)
 
   certificate(solution)
 end

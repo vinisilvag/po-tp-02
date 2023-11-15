@@ -23,16 +23,11 @@ function read_input(file)
   return Packing(n, w, 20)
 end
 
-function solve(data)
+function sorted_greedy(data)
   boxes = [[] for _ in 1:data.n]
   weights = zeros(data.n)
 
-  # println(boxes)
-  # println(weights)
-
   data.w = sort(data.w, rev=true)
-
-  # print(data)
 
   solution = 0
 
@@ -65,7 +60,7 @@ function certificate(solution, boxes, data)
     print("CAIXA $(i): ")
 
     for j in boxes[i]
-      print("$(j) ")
+      print("$(j)\t")
     end
 
     println()
@@ -76,7 +71,7 @@ function main()
   file = open(ARGS[1], "r")
   data = read_input(file)
 
-  solution, boxes, weights = solve(data)
+  solution, boxes, _ = sorted_greedy(data)
 
   certificate(solution, boxes, data)
 end
