@@ -66,7 +66,6 @@ function greedy(data)
 end
 
 function certificate(solution)
-  println("NUMERO DE VERTICES NO CONJUNTO: $(length(solution))")
   sort!(solution)
 
   for i in solution
@@ -82,6 +81,7 @@ function main()
 
   solution = greedy(data)
 
+  println("TP2 2021421869 = $(length(solution))")
   certificate(solution)
 end
 

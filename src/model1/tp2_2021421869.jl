@@ -49,15 +49,13 @@ function sorted_greedy(data)
   return solution, boxes, weights
 end
 
-function certificate(solution, boxes, data)
-  println("CAIXAS USADAS: $(solution)")
-
+function certificate(data, boxes)
   for i in 1:data.n
     if length(boxes[i]) == 0
       continue
     end
 
-    print("CAIXA $(i): ")
+    # print("CAIXA $(i): ")
 
     for j in boxes[i]
       print("$(j)\t")
@@ -73,7 +71,8 @@ function main()
 
   solution, boxes, _ = sorted_greedy(data)
 
-  certificate(solution, boxes, data)
+  println("TP2 2021421869 = $(solution)")
+  certificate(data, boxes)
 end
 
 main()

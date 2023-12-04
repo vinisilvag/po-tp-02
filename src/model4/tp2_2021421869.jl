@@ -1,9 +1,8 @@
 using DataStructures
-using StatsBase
 
 mutable struct Graph
   n::Int
-  g::Matrix{Int}
+  g::Array{Array{Int}}
 end
 
 function read_input(file)
@@ -15,102 +14,76 @@ function read_input(file)
 
     if q[1] == "n"
       n = parse(Int64, q[2])
-      g = zeros(Int, (n, n))
+      g = [[] for _ = 1:n]
     elseif q[1] == "e"
       v = parse(Int64, q[2])
       u = parse(Int64, q[3])
-      g[u, v] = 1
-      g[v, u] = 1
+      push!(g[v], u)
+      push!(g[u], v)
     end
   end
 
   return Graph(n, g)
 end
 
-function get_neighbors(data, u)
-  neighbors = Int[]
+function DSatur(data)
+  colors = [0 for _ = 1:data.n]
+  satur = [[] for i in 1:data.n]
+  pq = PriorityQueue{Int, Tuple{Int, Int}}(Base.Order.Reverse)
 
   for i in 1:data.n
-    if data.g[u, i] == 1
-      push!(neighbors, i)
-    end
+    push!(pq, i => (0, length(data.g[i])))
   end
 
-  return neighbors
-end
+  while !isempty(pq)
+    node = first(pq)
+    delete!(pq, node.first)
 
-function is_valid_coloring(data, individual)
-  is_valid = true
+    if colors[node.first] != 0
+      continue
+    end
 
-  for i in 1:data.n
-    neighbors = get_neighbors(data, i)
+    curr_color = 0
 
-    for j in neighbors
-      if individual[i] == individual[j]
-        is_valid = false
+    while colors[node.first] == 0
+      curr_color += 1
+
+      if !(curr_color in satur[node.first])
+        colors[node.first] = curr_color
+      end
+    end
+
+    for neighbor in data.g[node.first]
+      if colors[neighbor] == 0 && !(curr_color in satur[neighbor])
+        push!(satur[neighbor], curr_color)
+        push!(pq, neighbor => (length(satur[neighbor]), length(data.g[neighbor])))
       end
     end
   end
 
-  return is_valid
+  best = length(Set(colors))
+
+  return best, colors
 end
 
-function generate_individual(data)
-  individual = Array{Int}
+function certificate(data, best, colors)
+  class_list = [[] for _ in 1:best]
 
-  while true
-    individual = rand(1:data.n, data.n)
-
-    !is_valid_coloring(data, individual) || break
+  for i in 1:data.n
+    push!(class_list[colors[i]], i)
   end
 
-  return individual
-end
-
-function number_of_colors(individual)
-  return length(Set(individual))
-end
-
-function crossover()
-end
-
-function select()
-end
-
-function replace()
-end
-
-# n: # da populacao
-# iter: # de iteracoes
-# alfa: porcentagem da populacao que sofre mutacao
-# beta: porcentagem da populacao que se recombina
-function genetic(data, n, iter, alfa, beta)
-  best = data.n
-  colors = Vector{Int}
-
-  population = MutableBinaryMinHeap{Tuple{Int,Vector{Int}}}()
-
-  for _ in 1:n
-    individual = generate_individual(data)
-    push!(population, (number_of_colors(individual), individual))
+  for i in 1:best
+    sort!(class_list[i])
   end
 
-  for _ in 1:iter
-    for _ in 1:((n*beta)/2)
-      p1 = -1
-      p2 = -1
-
-      while true
-        p1 = floor(Int, rand(1:(n*beta)))
-        p2 = floor(Int, rand(1:(n*beta)))
-
-        p1 == p2 || break
-      end
-
-      # offspring = crossover()
-
-      # push!(population, (number_of_colors(offspring), offspring))
+  for i in 1:best
+    # print("$(i) COR: ")
+    for v in class_list[i]
+      print("$(v)\t")
     end
+
+    println()
   end
 end
 
@@ -118,9 +91,10 @@ function main()
   file = open(ARGS[1], "r")
   data = read_input(file)
 
-  solution = genetic(data, 100, 100, 0.6, 0.4)
+  best, colors = DSatur(data)
 
-  # certificate(solution, boxes, data)
+  println("TP2 2021421869 = $(best)")
+  certificate(data, best, colors)
 end
 
 main()
