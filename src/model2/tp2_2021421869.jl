@@ -1,3 +1,5 @@
+using Random
+
 mutable struct Graph
   n::Int
   g::Matrix{Int}
@@ -42,26 +44,50 @@ function greedy(data)
     vertices[i] = (degree[i], i)
   end
 
-  sort!(vertices)
-
   maximum_independet_set = Int[]
 
+  sort!(vertices)
+
+  # greedy first
   for i in 1:data.n
     can_insert = true
 
-    # compartilha aresta com algum vertice na solucao?
     for j in maximum_independet_set
       if data.g[vertices[i][2], j] == 1
         can_insert = false
       end
     end
 
-    # senao, insere
     if can_insert == true
       push!(maximum_independet_set, vertices[i][2])
     end
   end
 
+  # random
+  for _ in 1:10000
+    shuffle!(vertices)
+
+    solution = Int[]
+
+    for i in 1:data.n
+      can_insert = true
+  
+      for j in solution
+        if data.g[vertices[i][2], j] == 1
+          can_insert = false
+        end
+      end
+  
+      if can_insert == true
+        push!(solution, vertices[i][2])
+      end
+    end
+
+    if length(solution) > length(maximum_independet_set)
+      maximum_independet_set = copy(solution)
+    end
+  end
+  
   return maximum_independet_set
 end
 
