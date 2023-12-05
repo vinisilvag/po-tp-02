@@ -26,7 +26,7 @@ function read_input(file)
   return Graph(n, g)
 end
 
-function greedy(data)
+function greedy_randomized(data)
   degree = zeros(Int, data.n)
 
   for i in 1:data.n
@@ -105,7 +105,7 @@ function main()
   file = open(ARGS[1], "r")
   data = read_input(file)
 
-  solution = greedy(data)
+  solution = greedy_randomized(data)
 
   println("TP2 2021421869 = $(length(solution))")
   certificate(solution)
